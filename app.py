@@ -13,8 +13,21 @@ def print_board(board):
         if lineBreaker%3 == 0:
             print("-"*(len(row_string)-1))
 
+def find_empty(board):
+    emptyCells = []
+    for row in range(len(board)):
+        for col in range(len(board[row])):
+            emptyList = []
+            if board[row][col]==0:
+                emptyList.append(row)
+                emptyList.append(col)
+                emptyCells.append(emptyList)
+    return emptyCells
+
 def solve(board):
-    pass
+    emptyCells = find_empty(board)
+
+    print(emptyCells)
 
 
 board = [
