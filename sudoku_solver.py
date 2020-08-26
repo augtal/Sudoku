@@ -70,8 +70,19 @@ def __solveBoard(board, size_row, size_col):
 
     return False
 
+def __fixBoard(board):
+    """
+    fix_board = []
+    for i in range(len(board)):
+        fix_board.append(list(map(int, board[i])))
+    """
+
+    fix_board = [ list(map(int, i)) for i in board ]
+    return fix_board
+
 def solve(board):
     size = len(board)
+    board = __fixBoard(board)
     if size == 4:
         __solveBoard(board, int(size/2), int(size/2))
     elif size == 6:
@@ -80,3 +91,4 @@ def solve(board):
         __solveBoard(board, int(size/3), int(size/3))
     else:
         print("Unsupported board")
+    return board
