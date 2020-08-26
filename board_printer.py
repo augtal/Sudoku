@@ -17,7 +17,7 @@ def __printer(board,sizeRow,sizeCol):
         if lineBreaker%sizeRow == 0:
             print("-"*(len(row_string)-1))
 
-def print_board(board):
+def printBoard(board):
     size = len(board)
     if size == 4:
         __printer(board, size/2, size/2)
