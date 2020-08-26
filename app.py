@@ -1,14 +1,12 @@
 import board_printer
 
 def find_empty(board):
-    emptyCell = [-1,-1]
-    for row in enumerate(board):
-        for col in enumerate(row[1]):
-            if col[1]==0:
-                emptyCell[0] = row[0]
-                emptyCell[1] = col[0]
-                return emptyCell
-    return emptyCell
+    for row in range(len(board)):
+        for col in range(len(board[row])):
+            if board[row][col]==0:
+                return (row,col)
+    return (-1,-1)
+
 
 def solve_board(board):
     emptyCells = find_empty(board)
