@@ -7,29 +7,29 @@ def findEmpty(board):
                 return (row,col)
     return False
 
-def checkRow(board, cur_pos):
+def __checkRow(board, cur_pos, number):
     row, col = cur_pos
     for i in range(len(board[row])):
         if i == col:
             continue
 
-        if board[row][col] == board[row][i]:
+        if number == board[row][i]:
             return False
     return True
 
-def checkCol(board, cur_pos):
+def __checkCol(board, cur_pos, number):
     row, col = cur_pos
     for i in range(len(board[row])):
         if i == row:
             continue
 
-        if board[row][col] == board[i][col]:
+        if number == board[i][col]:
             return False
     return True
 
-def checkGrid(board, cur_pos):
+def __checkGrid(board, cur_pos, number):
     row, col = cur_pos
-    size = 2
+    size = 3
 
     x_box = row // size #sizeRow   0
     y_box = col // size #sizeCol   1
@@ -39,33 +39,48 @@ def checkGrid(board, cur_pos):
             if x == row and y == col:
                 continue
 
-            if board[row][col] == board[x][y]:
+            if number == board[x][y]:
                 return False
 
     return True
 
+def validNumber(board, cur_pos, number):
+    if not __checkRow(board, cur_pos, number):
+        return False
+    elif not __checkCol(board, cur_pos, number):
+        return False
+    elif not __checkGrid(board, cur_pos, number):
+        return False
+    else:
+        return True
 
 def solveBoard(board):
-    empty_cell = findEmpty(board)
-    row_empty, col_empty = empty_cell
+    empty_cell = findEmpty(board) #returns false if it can't find an empty value
 
-    boardWorking = board
-    boardWorking[row_empty][col_empty] = 8
+    if not empty_cell:
+        return True #found the solution because we have no more empty cells
+    else: 
+        row_empty, col_empty = empty_cell
 
-    board_printer.printBoard(boardWorking)
-    print(f"row does't have duplicate: {checkRow(boardWorking, empty_cell)}")
-    print(f"col does't have duplicate: {checkCol(boardWorking, empty_cell)}")
-    print(f"grid does't have duplicate: {checkGrid(boardWorking, empty_cell)}")
+    for i in range(1,10):
+        if(validNumber(board, empty_cell, i)):
+            board[row_empty][col_empty] = i
+
+            if solveBoard(board):
+                return True
+
+            board[row_empty][col_empty] = 0 #resets value to try again
+
+    return False
 
 if __name__=="__main__":
     board4x4, board6x6, board9x9 = board_printer.boards()
-
-    mainBoard = board4x4
+    mainBoard = board9x9
     print("Unsolved grid:")
-    #board_printer.printBoard(mainBoard)
+    board_printer.printBoard(mainBoard)
 
     solveBoard(mainBoard)
     print(" ")
 
-    #print("Solved grid:")
-    #board_printer.printBoard(mainBoard)
+    print("Solved grid:")
+    board_printer.printBoard(mainBoard)
