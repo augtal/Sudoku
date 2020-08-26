@@ -11,9 +11,9 @@ def checkInput(number_list, board_size):
 
 if __name__=="__main__":
     mainBoard = None
+
     while True:
-        #user_decision = str(input("Would you like to input a board(Yes/No): "))
-        user_decision = 'y'
+        user_decision = str(input("Would you like to input a board(Yes/No): "))
 
         if user_decision[0].lower() == 'n':
             user_board_size = str(input("What size sudoku board?(4x4/6x6/9x9): "))
@@ -26,36 +26,33 @@ if __name__=="__main__":
             else:
                 print(f"Incorrect size {user_board_size}")
                 break
+
         elif user_decision[0].lower() == 'y':
             board = []
             print("Empty cell should be marked as 0")
             print("Seperate cell values with a space or delimeter(,/./;)")
-            while True:
-                user_first_line = input("> ")
-                first_line = re.findall(r'\d+', user_first_line)
-                if checkInput(first_line, 9):
-                    board.append(first_line)
-                    break
-
             i = 1
-            board_size = len(first_line)
-            while i < board_size:
+            board_size = 9
+            while i < board_size-1:
+                if len(board) == 1:             #if user already inputed first sudoku board line
+                    if len(board[0]) < 9:       #if the board is smaller then 9x9
+                        i = 9-len(board[0])     #add the size difference to the i
+
                 user_line = input("> ")
                 line = re.findall(r'\d+', user_line)
                 if checkInput(line, board_size):
                     board.append(line)
                     i+=1
-
+            
             mainBoard = board
-
 
         if mainBoard is not None:
             print("Unsolved grid:")
             board_printer.printBoard(mainBoard)
 
-            solver.solve(mainBoard)
+            solvedBoard = solver.solve(mainBoard)
             print(" ")
 
             print("Solved grid:")
-            board_printer.printBoard(mainBoard)
+            board_printer.printBoard(solvedBoard)
             break
