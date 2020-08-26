@@ -33,10 +33,10 @@ if __name__=="__main__":
             print("Seperate cell values with a space or delimeter(,/./;)")
             i = 1
             board_size = 9
-            while i < board_size-1:
+            while i <= board_size:
                 if len(board) == 1:             #if user already inputed first sudoku board line
                     if len(board[0]) < 9:       #if the board is smaller then 9x9
-                        i = 9-len(board[0])     #add the size difference to the i
+                        i = 9-len(board[0])+2   #add the size difference to the i +2 because 1 for current row and one for starting row
 
                 user_line = input("> ")
                 line = re.findall(r'\d+', user_line)
@@ -49,10 +49,12 @@ if __name__=="__main__":
         if mainBoard is not None:
             print("Unsolved grid:")
             board_printer.printBoard(mainBoard)
+            try:
+                solvedBoard = solver.solve(mainBoard)
+                print(" ")
 
-            solvedBoard = solver.solve(mainBoard)
-            print(" ")
-
-            print("Solved grid:")
-            board_printer.printBoard(solvedBoard)
+                print("Solved grid:")
+                board_printer.printBoard(solvedBoard)
+            except (IndexError, NotImplementedError):
+                break
             break

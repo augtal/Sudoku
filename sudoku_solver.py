@@ -38,7 +38,6 @@ def __checkGrid(board, cur_pos, number, size_row, size_col):
 
             if number == board[x][y]:
                 return False
-
     return True
 
 def __validNumber(board, cur_pos, number, size_row, size_col):
@@ -84,11 +83,17 @@ def solve(board):
     size = len(board)
     board = __fixBoard(board)
     if size == 4:
-        __solveBoard(board, int(size/2), int(size/2))
+        if __solveBoard(board, int(size/2), int(size/2)) is False:
+            print("Unsolvable board")
+            raise NotImplementedError       #throwing an error to stop the program in main file
     elif size == 6:
-        __solveBoard(board, int(size/3), int(size/2))
+        if __solveBoard(board, int(size/3), int(size/2)) is False:
+            print("Unsolvable board")
+            raise NotImplementedError
     elif size == 9:
-        __solveBoard(board, int(size/3), int(size/3))
+        if __solveBoard(board, int(size/3), int(size/3))is False:
+            print("Unsolvable board")
+            raise NotImplementedError
     else:
         print("Unsupported board")
     return board
