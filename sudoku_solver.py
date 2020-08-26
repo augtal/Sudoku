@@ -52,7 +52,7 @@ def __validNumber(board, cur_pos, number, size_row, size_col):
         return True
 
 def __solveBoard(board, size_row, size_col):
-    empty_cell = findEmpty(board) #returns false if it can't find an empty value
+    empty_cell = __findEmpty(board) #returns false if it can't find an empty value
 
     if not empty_cell:
         return True #found the solution because we have no more empty cells
@@ -60,7 +60,7 @@ def __solveBoard(board, size_row, size_col):
         row_empty, col_empty = empty_cell
 
     for i in range(1,len(board)+1):
-        if(validNumber(board, empty_cell, i, size_row, size_col)):
+        if(__validNumber(board, empty_cell, i, size_row, size_col)):
             board[row_empty][col_empty] = i
 
             if __solveBoard(board, size_row, size_col):
