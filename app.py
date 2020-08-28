@@ -1,6 +1,5 @@
 import board_printer
 import sudoku_solver as solver
-import sudoku_GUI as GUI
 import re
 
 
@@ -66,7 +65,6 @@ def terminalDisplay():
 
 
 if __name__ == "__main__":
-    # terminalDisplay()
+    terminalDisplay()
 
-    board = board_printer.boards()[0]
-    GUI.draw(board)
+    board = board_printer.boards()[2]
