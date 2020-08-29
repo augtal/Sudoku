@@ -44,7 +44,7 @@ class Cube():
             screen.blit(cube_text, (x + x_value, y + y_value))
 
         if self.selected:
-            pygame.draw.rect(screen, (255, 0, 0), (x, y, gap, gap), 2)
+            pygame.draw.rect(screen, (0, 0, 255), (x, y, gap, gap), 2)
 
 
 class Board():
@@ -89,7 +89,7 @@ class Board():
             else:
                 thick = 1
             pygame.draw.line(screen, (0, 0, 0), (i * gap, 0),
-                             (i * gap, self.height), thick)
+                            (i * gap, self.height), thick)
 
         # draws horizontal lines
         for j in range(self.size_board+1):
@@ -98,13 +98,25 @@ class Board():
             else:
                 thick = 1
             pygame.draw.line(screen, (0, 0, 0), (0, j*gap),
-                             (self.width, j*gap), thick)
+                            (self.width, j*gap), thick)
 
         # draws cube values
         for x in range(self.size_board):
             for y in range(self.size_board):
                 self.cubes[x][y].draw(screen, self.size_board)
 
+    def click(self, mouse_pos):
+        #check if clicked inside the board
+        if mouse_pos[0] < self.width and mouse_pos[1] < self.height:
+            gap = self.width / self.size_board
+            x_cord = int(mouse_pos[0] // gap)
+            y_cord = int(mouse_pos[1] // gap)
+            return (x_cord, y_cord)
+        else:
+            return None
+
+    def selectedCell(self, x_cord, y_cord):
+        self.cubes[x_cord][y_cord].selected = True
 
 def main():
     pygame.init()
@@ -122,6 +134,12 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                clicked = board.click(mouse_pos)
+                if clicked is not None:
+                    board.selectedCell(clicked[0],clicked[1])
 
         board.draw(screen)
         pygame.display.update()
