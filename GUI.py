@@ -44,7 +44,7 @@ class Cube():
             screen.blit(cube_text, (x + x_value, y + y_value))
 
         if self.selected:
-            pygame.draw.rect(screen, (0, 0, 255), (x, y, gap, gap), 2)
+            pygame.draw.rect(screen, (0, 0, 255), (x, y, gap, gap), 3)
 
 
 class Board():
@@ -57,6 +57,7 @@ class Board():
             board)
 
         self.cubes = self.__makeCubes()
+        self.selected_cell = None
 
     def __makeCubes(self):
         cubes_all = []
@@ -89,7 +90,7 @@ class Board():
             else:
                 thick = 1
             pygame.draw.line(screen, (0, 0, 0), (i * gap, 0),
-                            (i * gap, self.height), thick)
+                             (i * gap, self.height), thick)
 
         # draws horizontal lines
         for j in range(self.size_board+1):
@@ -98,7 +99,7 @@ class Board():
             else:
                 thick = 1
             pygame.draw.line(screen, (0, 0, 0), (0, j*gap),
-                            (self.width, j*gap), thick)
+                             (self.width, j*gap), thick)
 
         # draws cube values
         for x in range(self.size_board):
@@ -106,7 +107,7 @@ class Board():
                 self.cubes[x][y].draw(screen, self.size_board)
 
     def click(self, mouse_pos):
-        #check if clicked inside the board
+        # check if clicked inside the board
         if mouse_pos[0] < self.width and mouse_pos[1] < self.height:
             gap = self.width / self.size_board
             x_cord = int(mouse_pos[0] // gap)
@@ -116,7 +117,15 @@ class Board():
             return None
 
     def selectedCell(self, x_cord, y_cord):
-        self.cubes[x_cord][y_cord].selected = True
+        if self.selected_cell is None:
+            self.cubes[x_cord][y_cord].selected = True
+            self.selected_cell = (x_cord, y_cord)
+        else:
+            old_x, old_y = self.selected_cell
+            self.cubes[old_x][old_y].selected = False
+            self.cubes[x_cord][y_cord].selected = True
+            self.selected_cell = (x_cord, y_cord)
+
 
 def main():
     pygame.init()
@@ -139,8 +148,9 @@ def main():
                 mouse_pos = pygame.mouse.get_pos()
                 clicked = board.click(mouse_pos)
                 if clicked is not None:
-                    board.selectedCell(clicked[0],clicked[1])
+                    board.selectedCell(clicked[0], clicked[1])
 
+        screen.fill((255, 255, 255))
         board.draw(screen)
         pygame.display.update()
 
