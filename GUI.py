@@ -14,7 +14,7 @@ FPS = 10
 
 
 class Cube():
-    def __init__(self, col, row, value, width, height):
+    def __init__(self, row, col, value, width, height):
         self.row = row
         self.col = col
         self.value = value
@@ -22,6 +22,7 @@ class Cube():
         self.height = height
         self.selected = False
         self.temp = None
+        self.correct = None
 
     def draw(self, screen, board_size):
         font_size = int(((self.width / board_size) / 2)
@@ -33,21 +34,25 @@ class Cube():
         x = self.col * gap
         y = self.row * gap
 
-        if not(self.temp == None):
+        if self.temp != None:
             cube_text = font.render(str(self.temp), 1, (150, 150, 150))
             x_value = gap/2 - cube_text.get_width()/2
             y_value = gap/2 - cube_text.get_height()/2
-
             screen.blit(cube_text, (x + x_value, y + y_value))
-        elif not(self.value == 0):
+
+        elif self.value != 0 or self.correct:
             cube_text = font.render(str(self.value), 1, (0, 0, 0))
             x_value = gap/2 - cube_text.get_width()/2
             y_value = gap/2 - cube_text.get_height()/2
-
             screen.blit(cube_text, (x + x_value, y + y_value))
 
         if self.selected:
             pygame.draw.rect(screen, (0, 0, 255), (x, y, gap, gap), 3)
+
+        if self.correct:        #if the entered value is correct paint border green
+            pygame.draw.rect(screen, (0, 255, 0), (x, y, gap, gap), 3)
+        elif self.correct == False:    #if the entered value is wrong paint border red
+            pygame.draw.rect(screen, (255, 0, 0), (x, y, gap, gap), 3)
 
     def setValue(self, value):
         self.value = value
@@ -108,7 +113,7 @@ class Board():
             else:
                 thick = 1
             pygame.draw.line(screen, (0, 0, 0), (0, j*gap),
-                             (self.width, j*gap), thick)
+                            (self.width, j*gap), thick)
 
         # draws cube values
         for x in range(self.size_board):
@@ -127,28 +132,33 @@ class Board():
 
     def selectedCell(self, x_cord, y_cord):
         if self.selected_cell is None:
-            self.cubes[x_cord][y_cord].selected = True
+            self.cubes[y_cord][x_cord].selected = True
             self.selected_cell = (x_cord, y_cord)
         else:
             old_x, old_y = self.selected_cell
-            self.cubes[old_x][old_y].selected = False
-            self.cubes[x_cord][y_cord].selected = True
+            self.cubes[old_y][old_x].selected = False
+            self.cubes[old_y][old_x].correct = None
+
+            self.cubes[y_cord][x_cord].selected = True
             self.selected_cell = (x_cord, y_cord)
 
-    def placeValue(self, value):
+    def placeValue(self, value, solved_board):
         x_cord, y_cord = self.selected_cell
-        return None
 
-        if self.cubes[x_cord][y_cord].value == 0:
-            self.cubes[x_cord][y_cord].setValue(value)
+        if self.cubes[y_cord][x_cord].temp == solved_board[y_cord][x_cord]:
+            self.cubes[y_cord][x_cord].setValue(value)
+            self.cubes[y_cord][x_cord].correct = True
+        else:
+            self.cubes[y_cord][x_cord].temp = None
+            self.cubes[y_cord][x_cord].correct = False
 
     def placeTempValue(self, value):
         x_cord, y_cord = self.selected_cell
 
-        if self.cubes[x_cord][y_cord].temp == None:
-            self.cubes[x_cord][y_cord].setTempValue(value)
-        elif self.cubes[x_cord][y_cord].temp != None:
-            self.cubes[x_cord][y_cord].setTempValue(value)
+        if self.cubes[y_cord][x_cord].temp == None: #if the cell value is empty
+            self.cubes[y_cord][x_cord].setTempValue(value)
+        elif self.cubes[y_cord][x_cord].temp != None: #if the cell already has a temp value
+            self.cubes[y_cord][x_cord].setTempValue(value)
 
 
 def main():
@@ -159,6 +169,7 @@ def main():
 
     demo_board = board_printer.boards()[2]
     size_row, size_col = sudoku_solver.findBoardSize(demo_board)
+    solved_board = sudoku_solver.solve(demo_board)
 
     board = Board(demo_board, window_WIDTH, window_HEIGHT)
 
@@ -194,10 +205,12 @@ def main():
                     key = 8
                 if event.key == pygame.K_9 or event.key == pygame.K_KP9:
                     key = 9
+                
+                if key != None:
+                    board.placeTempValue(key)
 
-                board.placeTempValue(key)
-                if event.key == pygame.K_RETURN:
-                    board.placeValue(key)
+                if event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
+                    board.placeValue(key, solved_board)
 
                 key = None
 
