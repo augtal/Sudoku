@@ -10,7 +10,7 @@ window_WIDTH, window_HEIGHT = 900, 900
 screen = pygame.display.set_mode((window_WIDTH, window_HEIGHT))
 pygame.display.set_caption("Sudoku")
 screen.fill((255, 255, 255))
-FPS = 30
+FPS = 10
 
 
 class Cube():
@@ -38,8 +38,10 @@ class Cube():
             screen.blit(cube_text, (x+5, y+5))
         elif not(self.value == 0):
             cube_text = font.render(str(self.value), 1, (0, 0, 0))
-            screen.blit(cube_text, (x + (gap/2 - cube_text.get_width()/2),
-                                    y + (gap/2 - cube_text.get_height()/2)))
+            x_value = gap/2 - cube_text.get_width()/2
+            y_value = gap/2 - cube_text.get_height()/2
+
+            screen.blit(cube_text, (x + x_value, y + y_value))
 
         if self.selected:
             pygame.draw.rect(screen, (255, 0, 0), (x, y, gap, gap), 2)
@@ -53,9 +55,6 @@ class Board():
 
         self.size_rows, self.size_cols, self.size_board = self.__getBoardParameters(
             board)
-
-        self.model = None
-        self.selected = None
 
         self.cubes = self.__makeCubes()
 
@@ -81,7 +80,7 @@ class Board():
             return (int(size/3), int(size/3), size)
 
     def draw(self, screen):
-        gap = int(self.width / self.size_board)
+        gap = self.width / self.size_board
 
         # draws vertical lines
         for i in range(self.size_board+1):
@@ -117,8 +116,6 @@ def main():
 
     board = Board(demo_board, window_WIDTH, window_HEIGHT)
 
-    board.draw(screen)
-
     while run:
         clock.tick(FPS)
 
@@ -126,6 +123,7 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
 
+        board.draw(screen)
         pygame.display.update()
 
 
