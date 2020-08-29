@@ -21,7 +21,7 @@ class Cube():
         self.width = width
         self.height = height
         self.selected = False
-        self.temp = []
+        self.temp = None
 
     def draw(self, screen, board_size):
         font_size = int(((self.width / board_size) / 2)
@@ -33,9 +33,12 @@ class Cube():
         x = self.col * gap
         y = self.row * gap
 
-        if len(self.temp) != 0 and self.value == 0:
-            cube_text = font.render(str(self.temp[0]), 1, (128, 128, 128))
-            screen.blit(cube_text, (x+5, y+5))
+        if not(self.temp == None):
+            cube_text = font.render(str(self.temp), 1, (150, 150, 150))
+            x_value = gap/2 - cube_text.get_width()/2
+            y_value = gap/2 - cube_text.get_height()/2
+
+            screen.blit(cube_text, (x + x_value, y + y_value))
         elif not(self.value == 0):
             cube_text = font.render(str(self.value), 1, (0, 0, 0))
             x_value = gap/2 - cube_text.get_width()/2
@@ -45,6 +48,12 @@ class Cube():
 
         if self.selected:
             pygame.draw.rect(screen, (0, 0, 255), (x, y, gap, gap), 3)
+
+    def setValue(self, value):
+        self.value = value
+
+    def setTempValue(self, value):
+        self.temp = value
 
 
 class Board():
@@ -126,10 +135,26 @@ class Board():
             self.cubes[x_cord][y_cord].selected = True
             self.selected_cell = (x_cord, y_cord)
 
+    def placeValue(self, value):
+        x_cord, y_cord = self.selected_cell
+        return None
+
+        if self.cubes[x_cord][y_cord].value == 0:
+            self.cubes[x_cord][y_cord].setValue(value)
+
+    def placeTempValue(self, value):
+        x_cord, y_cord = self.selected_cell
+
+        if self.cubes[x_cord][y_cord].temp == None:
+            self.cubes[x_cord][y_cord].setTempValue(value)
+        elif self.cubes[x_cord][y_cord].temp != None:
+            self.cubes[x_cord][y_cord].setTempValue(value)
+
 
 def main():
     pygame.init()
     run = True
+    key = None
     clock = pygame.time.Clock()
 
     demo_board = board_printer.boards()[2]
@@ -149,6 +174,32 @@ def main():
                 clicked = board.click(mouse_pos)
                 if clicked is not None:
                     board.selectedCell(clicked[0], clicked[1])
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1 or event.key == pygame.K_KP1:
+                    key = 1
+                if event.key == pygame.K_2 or event.key == pygame.K_KP2:
+                    key = 2
+                if event.key == pygame.K_3 or event.key == pygame.K_KP3:
+                    key = 3
+                if event.key == pygame.K_4 or event.key == pygame.K_KP4:
+                    key = 4
+                if event.key == pygame.K_5 or event.key == pygame.K_KP5:
+                    key = 5
+                if event.key == pygame.K_6 or event.key == pygame.K_KP6:
+                    key = 6
+                if event.key == pygame.K_7 or event.key == pygame.K_KP7:
+                    key = 7
+                if event.key == pygame.K_8 or event.key == pygame.K_KP8:
+                    key = 8
+                if event.key == pygame.K_9 or event.key == pygame.K_KP9:
+                    key = 9
+
+                board.placeTempValue(key)
+                if event.key == pygame.K_RETURN:
+                    board.placeValue(key)
+
+                key = None
 
         screen.fill((255, 255, 255))
         board.draw(screen)
