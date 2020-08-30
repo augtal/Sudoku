@@ -111,6 +111,7 @@ def solve(board):
         raise NotImplementedError  # throwing an error to stop the program in main file
     return board
 
+
 def __makeBoard(size):
     board = []
 
@@ -131,19 +132,37 @@ def generateBoard(size, dificulty="normal"):
         "hard": 3,
     }
 
-    dificulty_modifier = 1 - (dificulty_dict[dificulty]) / 4
-    # easy = 3/4 | normal = 2/4 | hard = 1/4 of board visible lower number = harder
+    dificulty_modifier = dificulty_dict[dificulty] / 4
+    # easy = 1/4 | normal = 2/4 | hard = 3/4 of board is NOT visible | lower number = easier
     size_row, size_col = findBoardSize(size)
     full_size = size**2
     run = True
-    
+
     while run:
         try:
             board = __makeBoard(size)
             counter = 0
+            i = 0
+            # generates first row of the board to not have tree values in a row that are incremental
+            # i.e. 1,2,3 / 2,3,4 / 3,4,5 / ... etc.
+            # this method is purely for that it is not needed to generate boards
+            while counter < size/2:
+                number = rnd.randint(1, size)
+                if i == 0:
+                    board[0][i] = number
+                    counter += 1
+                    i += 2
+                    continue
+
+                if board[0][i-2]+1 != number:
+                    if __validNumber(board, (0, i), number, size_row, size_col):
+                        board[0][i] = number
+                        counter += 1
+                        i += 2
+
             # inserts a small amount of numbers in random places to generate unique board
             while counter < size:
-                pos = (rnd.randint(0, size-1), rnd.randint(0, size-1))
+                pos = (rnd.randint(1, size-1), rnd.randint(0, size-1))
 
                 number = rnd.randint(1, size)
 
@@ -153,35 +172,25 @@ def generateBoard(size, dificulty="normal"):
 
             # tries to solve generated board
             solved_board = solve(board)
-            
-            for i in range(size-3-1):
-                number_1 = solved_board[0][i]
-                number_2 = solved_board[0][i+1]
-                number_3 = solved_board[0][i+2]
-                
-                #boards first row has increasing numbers
-                #doens't serve any other purpose then to not annoy me 
-                #triggers on 1,2,3 2,3,4 3,4,5 etc.
-                if number_1+1 == number_2 and number_2+1 == number_3:
-                    raise NotImplementedError
 
             run = False
-        except NotImplementedError: #catches unsolvable boards
+        except NotImplementedError:  # catches unsolvable boards
             run = True
 
     # removes random amount of cell values for user to solve
     counter = 0
-    #need to use deep copy because other methods change solved_board too
+    # need to use deep copy because other methods change solved_board too
     generated_board = copy.deepcopy(solved_board)
     remove_amount = int(dificulty_modifier*(full_size))
     while counter < remove_amount:
         pos = (rnd.randint(0, size-1), rnd.randint(0, size-1))
-
-        generated_board[pos[0]][pos[1]] = 0
-        counter += 1
+        
+        if generated_board[pos[0]][pos[1]] != 0:
+            generated_board[pos[0]][pos[1]] = 0
+            counter += 1
 
     return generated_board, solved_board
 
 
 if __name__ == "__main__":
-    generateBoard(9, dificulty="hard")
+    generateBoard(6, dificulty="hard")
