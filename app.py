@@ -1,6 +1,7 @@
 import board_printer
 import sudoku_solver as solver
 import re
+import GUI
 
 
 def __checkInput(number_list, board_size):
@@ -65,6 +66,6 @@ def terminalDisplay():
 
 
 if __name__ == "__main__":
-    terminalDisplay()
+    #terminalDisplay()
 
-    board = board_printer.boards()[2]
+    GUI.main()
