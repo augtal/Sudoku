@@ -1,3 +1,6 @@
+import random as rnd
+
+
 def __findEmpty(board):
     for row in range(len(board)):
         for col in range(len(board[row])):
@@ -87,9 +90,7 @@ def __fixBoard(board):
     return fix_board
 
 
-def findBoardSize(board):
-    size = len(board)
-
+def findBoardSize(size):
     if size == 4:
         return (int(size/2), int(size/2))
     elif size == 6:
@@ -103,8 +104,70 @@ def findBoardSize(board):
 
 def solve(board):
     board = __fixBoard(board)
-    size_row, size_col = findBoardSize(board)
+    size_row, size_col = findBoardSize(len(board))
     if __solveBoard(board, size_row, size_col) is False:
         print("Unsolvable board")
         raise NotImplementedError  # throwing an error to stop the program in main file
     return board
+
+def __makeBoard(size):
+    board = []
+
+    # makes empty board based on size
+    for i in range(size):
+        board_row = []
+        for j in range(size):
+            board_row.append(0)
+        board.append(board_row)
+
+    return board
+
+
+def generateBoard(size, dificulty="normal"):
+    dificulty_dict = {
+        "easy": 1,
+        "normal": 2,
+        "hard": 3,
+    }
+
+    dificulty_modifier = 1 - (dificulty_dict[dificulty]) / 4
+    # easy = 3/4 | normal = 2/4 | hard = 1/4 of board visible lower number = harder
+    size_row, size_col = findBoardSize(size)
+    full_size = size**2
+    run = True
+    
+    while run:
+        try:
+            board = __makeBoard(size)
+            counter = 0
+            # inserts a small amount of numbers in random places to generate unique board
+            while counter < size:
+                pos = (rnd.randint(0, size-1), rnd.randint(0, size-1))
+
+                number = rnd.randint(1, size)
+
+                if __validNumber(board, pos, number, size_row, size_col):
+                    board[pos[0]][pos[1]] = number
+                    counter += 1
+
+            # tries to solve generated board
+            generated_board = solve(board)
+
+            run = False
+        except NotImplementedError: #catches unsolvable boards
+            run = True
+
+    # removes random amount of cell values for user to solve
+    counter = 0
+    remove_amount = int(dificulty_modifier*(full_size))
+    while counter < remove_amount:
+        pos = (rnd.randint(0, size-1), rnd.randint(0, size-1))
+
+        generated_board[pos[0]][pos[1]] = 0
+        counter += 1
+
+    return generated_board
+
+
+if __name__ == "__main__":
+    generateBoard(9, dificulty="hard")
