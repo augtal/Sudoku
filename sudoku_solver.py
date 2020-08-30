@@ -1,4 +1,5 @@
 import random as rnd
+import copy
 
 
 def __findEmpty(board):
@@ -151,7 +152,18 @@ def generateBoard(size, dificulty="normal"):
                     counter += 1
 
             # tries to solve generated board
-            generated_board = solve(board)
+            solved_board = solve(board)
+            
+            for i in range(size-3-1):
+                number_1 = solved_board[0][i]
+                number_2 = solved_board[0][i+1]
+                number_3 = solved_board[0][i+2]
+                
+                #boards first row has increasing numbers
+                #doens't serve any other purpose then to not annoy me 
+                #triggers on 1,2,3 2,3,4 3,4,5 etc.
+                if number_1+1 == number_2 and number_2+1 == number_3:
+                    raise NotImplementedError
 
             run = False
         except NotImplementedError: #catches unsolvable boards
@@ -159,6 +171,8 @@ def generateBoard(size, dificulty="normal"):
 
     # removes random amount of cell values for user to solve
     counter = 0
+    #need to use deep copy because other methods change solved_board too
+    generated_board = copy.deepcopy(solved_board)
     remove_amount = int(dificulty_modifier*(full_size))
     while counter < remove_amount:
         pos = (rnd.randint(0, size-1), rnd.randint(0, size-1))
@@ -166,7 +180,7 @@ def generateBoard(size, dificulty="normal"):
         generated_board[pos[0]][pos[1]] = 0
         counter += 1
 
-    return generated_board
+    return generated_board, solved_board
 
 
 if __name__ == "__main__":
