@@ -34,24 +34,25 @@ class Cube():
         x = self.col * gap
         y = self.row * gap
 
-        if self.temp != None:
+        if self.value != 0 or self.correct:
+            cube_text = font.render(str(self.value), 1, (0, 0, 0))
+            x_value = gap/2 - cube_text.get_width()/2
+            y_value = gap/2 - cube_text.get_height()/2
+            screen.blit(cube_text, (x + x_value, y + y_value))
+        elif self.temp != None:
             cube_text = font.render(str(self.temp), 1, (150, 150, 150))
             x_value = gap/2 - cube_text.get_width()/2
             y_value = gap/2 - cube_text.get_height()/2
             screen.blit(cube_text, (x + x_value, y + y_value))
 
-        elif self.value != 0 or self.correct:
-            cube_text = font.render(str(self.value), 1, (0, 0, 0))
-            x_value = gap/2 - cube_text.get_width()/2
-            y_value = gap/2 - cube_text.get_height()/2
-            screen.blit(cube_text, (x + x_value, y + y_value))
+        
 
         if self.selected:
             pygame.draw.rect(screen, (0, 0, 255), (x, y, gap, gap), 3)
 
-        if self.correct:        #if the entered value is correct paint border green
+        if self.correct:  # if the entered value is correct paint border green
             pygame.draw.rect(screen, (0, 255, 0), (x, y, gap, gap), 3)
-        elif self.correct == False:    #if the entered value is wrong paint border red
+        elif self.correct == False:  # if the entered value is wrong paint border red
             pygame.draw.rect(screen, (255, 0, 0), (x, y, gap, gap), 3)
 
     def setValue(self, value):
@@ -131,9 +132,11 @@ class Board():
             return None
 
     def selectedCell(self, x_cord, y_cord):
+        #first selected cell
         if self.selected_cell is None:
             self.cubes[y_cord][x_cord].selected = True
             self.selected_cell = (x_cord, y_cord)
+        #other selected cell after the first one
         else:
             old_x, old_y = self.selected_cell
             self.cubes[old_y][old_x].selected = False
@@ -142,10 +145,11 @@ class Board():
             self.cubes[y_cord][x_cord].selected = True
             self.selected_cell = (x_cord, y_cord)
 
-    def placeValue(self, value, solved_board):
+    def placeValue(self, solved_board):
         x_cord, y_cord = self.selected_cell
+        value = self.cubes[y_cord][x_cord].temp
 
-        if self.cubes[y_cord][x_cord].temp == solved_board[y_cord][x_cord]:
+        if value == solved_board[y_cord][x_cord]:
             self.cubes[y_cord][x_cord].setValue(value)
             self.cubes[y_cord][x_cord].correct = True
         else:
@@ -155,9 +159,13 @@ class Board():
     def placeTempValue(self, value):
         x_cord, y_cord = self.selected_cell
 
-        if self.cubes[y_cord][x_cord].temp == None: #if the cell value is empty
+        if self.cubes[y_cord][x_cord].value != 0:
+            return
+
+        if self.cubes[y_cord][x_cord].temp == None:  # if the cell value is empty
             self.cubes[y_cord][x_cord].setTempValue(value)
-        elif self.cubes[y_cord][x_cord].temp != None: #if the cell already has a temp value
+        # if the cell already has a temp value
+        elif self.cubes[y_cord][x_cord].temp != None:
             self.cubes[y_cord][x_cord].setTempValue(value)
 
 
@@ -205,12 +213,12 @@ def main():
                     key = 8
                 if event.key == pygame.K_9 or event.key == pygame.K_KP9:
                     key = 9
-                
+
                 if key != None:
                     board.placeTempValue(key)
 
                 if event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
-                    board.placeValue(key, solved_board)
+                    board.placeValue(solved_board)
 
                 key = None
 
