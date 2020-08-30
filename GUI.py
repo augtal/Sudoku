@@ -7,10 +7,13 @@ import board_printer
 pygame.font.init()
 
 window_WIDTH, window_HEIGHT = 900, 900
+GAME_NAME = "Sudoku"
 screen = pygame.display.set_mode((window_WIDTH, window_HEIGHT))
-pygame.display.set_caption("Sudoku")
+pygame.display.set_caption(GAME_NAME)
 screen.fill((255, 255, 255))
+
 FPS = 10
+GREEN, YELLOW, ORANGE = (146, 208, 80), (255, 217, 102), (244, 176, 132)
 
 
 class Cube():
@@ -36,7 +39,7 @@ class Cube():
         y = self.row * gap
 
         if self.helper:
-            pygame.draw.rect(screen, (245, 245, 245), (x, y, gap, gap))
+            pygame.draw.rect(screen, (230, 230, 230), (x, y, gap, gap))
 
         if self.value != 0 or self.correct:
             cube_text = font.render(str(self.value), 1, (0, 0, 0))
@@ -167,14 +170,15 @@ class Board():
 
     def placeValue(self, solved_board):
         y_cord, x_cord = self.selected_cell
-        value = self.cubes[y_cord][x_cord].temp
+        if self.cubes[y_cord][x_cord].value == 0:
+            value = self.cubes[y_cord][x_cord].temp
 
-        if value == solved_board[y_cord][x_cord]:
-            self.cubes[y_cord][x_cord].setValue(value)
-            self.cubes[y_cord][x_cord].correct = True
-        else:
-            self.cubes[y_cord][x_cord].temp = None
-            self.cubes[y_cord][x_cord].correct = False
+            if value == solved_board[y_cord][x_cord]:
+                self.cubes[y_cord][x_cord].setValue(value)
+                self.cubes[y_cord][x_cord].correct = True
+            else:
+                self.cubes[y_cord][x_cord].temp = None
+                self.cubes[y_cord][x_cord].correct = False
 
     def placeTempValue(self, value):
         y_cord, x_cord = self.selected_cell
@@ -189,20 +193,167 @@ class Board():
             self.cubes[y_cord][x_cord].setTempValue(value)
 
 
-def main():
-    pygame.init()
-    run = True
+def gameControls(event, board, solved_board):
     key = None
-    clock = pygame.time.Clock()
 
-    demo_board = board_printer.boards()[2]
-    size_row, size_col = sudoku_solver.findBoardSize(demo_board)
-    solved_board = sudoku_solver.solve(demo_board)
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        mouse_pos = pygame.mouse.get_pos()
+        clicked = board.click(mouse_pos)
+        if clicked is not None:
+            board.selectedCell(clicked[0], clicked[1])
 
-    board = Board(demo_board, window_WIDTH, window_HEIGHT)
+    if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_1 or event.key == pygame.K_KP1:
+            key = 1
+        if event.key == pygame.K_2 or event.key == pygame.K_KP2:
+            key = 2
+        if event.key == pygame.K_3 or event.key == pygame.K_KP3:
+            key = 3
+        if event.key == pygame.K_4 or event.key == pygame.K_KP4:
+            key = 4
+        if event.key == pygame.K_5 or event.key == pygame.K_KP5:
+            key = 5
+        if event.key == pygame.K_6 or event.key == pygame.K_KP6:
+            key = 6
+        if event.key == pygame.K_7 or event.key == pygame.K_KP7:
+            key = 7
+        if event.key == pygame.K_8 or event.key == pygame.K_KP8:
+            key = 8
+        if event.key == pygame.K_9 or event.key == pygame.K_KP9:
+            key = 9
+
+        if key != None:
+            board.placeTempValue(key)
+
+        if event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
+            board.placeValue(solved_board)
+
+        key = None
+
+
+def game(clock, size, difficulty):
+    run = True
+
+    sudoku_board, solved_board = sudoku_solver.generateBoard(size, difficulty)
+    board = Board(sudoku_board, window_WIDTH, window_HEIGHT)
 
     while run:
         clock.tick(FPS)
+        screen.fill((255, 255, 255))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+            gameControls(event, board, solved_board)
+
+        board.draw(screen)
+        pygame.display.update()
+
+
+class Button():
+    def __init__(self, color, x, y, width, height, size, text=''):
+        self.color = color
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.text = text
+        self.board_size = size
+
+    def draw(self, surface, thickness=None):
+        pygame.draw.rect(surface, self.color,
+                         (self.x, self.y, self.width, self.height))
+
+        if thickness:
+            pygame.draw.rect(surface, self.color, (self.x-2,
+                                                   self.y - 2, self.width+4, self.height+4), thickness)
+
+        if self.text != '':
+            font = pygame.font.SysFont('calibri', int(self.height))
+            text = font.render(self.text, 1, (0, 0, 0))
+            surface.blit(text, (self.x + (self.width/2 - text.get_width()/2),
+                                self.y + (self.height/2 - text.get_height()/2)+1))
+
+    def click(self, pos):
+        # Pos is the mouse position or a tuple of (x,y) coordinates
+        if pos[0] > self.x and pos[0] < self.x + self.width:
+            if pos[1] > self.y and pos[1] < self.y + self.height:
+                return True
+
+        return False
+
+
+def drawMenu():
+    screen.fill((250, 250, 250))
+
+    gap_x = window_WIDTH / 20
+    gap_y = window_HEIGHT / 20
+
+    # menu
+    menu_font = pygame.font.SysFont('ariel', int(gap_y*2))
+    menu_text = menu_font.render(GAME_NAME.capitalize(), 1, (0, 0, 0))
+    screen.blit(menu_text, (window_WIDTH/2 - menu_text.get_width()/2, gap_y+gap_y/2))
+
+    colors = {
+        0: [GREEN, "EASY"],
+        1: [YELLOW, "NORMAL"],
+        2: [ORANGE, "HARD"]
+    }
+
+    grid_font = pygame.font.SysFont('ariel', int(gap_y))
+
+    buttons = []
+    button_row = []
+    # blank is needed for the next for loop because it starts at 1
+    grids = ["BLANK", "GRID 4X4", "GRID 6X6", "GRID 9X9"]
+    # draws a rectangle
+    for i in range(4):
+        if i == 0:
+            continue
+        rect_cords = pygame.rect.Rect(
+            ((window_WIDTH/2) - (gap_x * 8)),
+            (gap_y*(5*i)),  # this is the reason it starts at one
+            (window_WIDTH-(gap_x*4)),
+            (gap_y*4)
+        )
+        grid_rect = pygame.draw.rect(screen, (0, 0, 0), rect_cords, 4)
+
+        grid_text = grid_font.render(grids[i], 1, (0, 0, 0))
+        screen.blit(grid_text, (window_WIDTH/2 - grid_text.get_width()/2, rect_cords.y+gap_y/4))
+
+        size = int(grids[i][-1])
+
+        button_row = []
+        # draws a buttons
+        for j in range(3):
+            button_cords = [
+                (rect_cords.x + (gap_x + (gap_x*(5*j)))),
+                (rect_cords.y+gap_y*2),
+                (gap_x*4),
+                (gap_y)
+            ]
+            button = Button(colors[j][0], button_cords[0], button_cords[1], button_cords[2], 
+                            button_cords[3], size, text=colors[j][1])
+
+            button.draw(screen)
+
+            button_row.append(button)
+        buttons.append(button_row)
+
+    return buttons
+
+
+def main():
+    pygame.init()
+    run = True
+    clock = pygame.time.Clock()
+    # game(clock)
+    buttons = drawMenu()
+
+    while run:
+        clock.tick(FPS)
+        
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -210,40 +361,13 @@ def main():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
-                clicked = board.click(mouse_pos)
-                if clicked is not None:
-                    board.selectedCell(clicked[0], clicked[1])
+                
+                for i in range(len(buttons)):
+                    for j in range(len(buttons[i])):
+                        if buttons[i][j].click(mouse_pos):
+                            game(clock, buttons[i][j].board_size, buttons[i][j].text.lower())
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_1 or event.key == pygame.K_KP1:
-                    key = 1
-                if event.key == pygame.K_2 or event.key == pygame.K_KP2:
-                    key = 2
-                if event.key == pygame.K_3 or event.key == pygame.K_KP3:
-                    key = 3
-                if event.key == pygame.K_4 or event.key == pygame.K_KP4:
-                    key = 4
-                if event.key == pygame.K_5 or event.key == pygame.K_KP5:
-                    key = 5
-                if event.key == pygame.K_6 or event.key == pygame.K_KP6:
-                    key = 6
-                if event.key == pygame.K_7 or event.key == pygame.K_KP7:
-                    key = 7
-                if event.key == pygame.K_8 or event.key == pygame.K_KP8:
-                    key = 8
-                if event.key == pygame.K_9 or event.key == pygame.K_KP9:
-                    key = 9
-
-                if key != None:
-                    board.placeTempValue(key)
-
-                if event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
-                    board.placeValue(solved_board)
-
-                key = None
-
-        screen.fill((255, 255, 255))
-        board.draw(screen)
+        drawMenu()
         pygame.display.update()
 
 
