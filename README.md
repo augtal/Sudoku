@@ -11,14 +11,14 @@ Program GUI was made with pygame
 **Program screenshots:**
 
 *Main Menu:*
-![Main Menu Image](https://github.com/augtal/Sudoku/blob/master/images/mainMenu.jpg?raw=true)
+![Main Menu Image](https://github.com/augtal/Sudoku/blob/master/images/mainMenu.JPG)
 
 
 *4x4 Grid*
-![4x4Grid](https://github.com/augtal/Sudoku/blob/master/images/4x4Grid.jpg?raw=true)
+![4x4Grid](https://github.com/augtal/Sudoku/blob/master/images/4x4Grid.JPG)
 
 *6x6 Grid*
-![6x6Grid](https://github.com/augtal/Sudoku/blob/master/images/6x6Grid.jpg?raw=true)
+![6x6Grid](https://github.com/augtal/Sudoku/blob/master/images/6x6Grid.JPG)
 
 *9x9 Grid*
-![9x9Grid](https://github.com/augtal/Sudoku/blob/master/images/9x9Grid.jpg?raw=true)
+![9x9Grid](https://github.com/augtal/Sudoku/blob/master/images/9x9Grid.JPG)
