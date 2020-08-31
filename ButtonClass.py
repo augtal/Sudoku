@@ -14,6 +14,7 @@ class Button():
         pygame.draw.rect(surface, self.color,
                         (self.x, self.y, self.width, self.height))
 
+        # draws a border around a button
         if thickness:
             pygame.draw.rect(surface, self.color, 
                             (self.x-2,self.y - 2, self.width+4, self.height+4), thickness)
@@ -25,7 +26,6 @@ class Button():
                                 self.y + (self.height/2 - text.get_height()/2)+1))
 
     def click(self, pos):
-        # Pos is the mouse position or a tuple of (x,y) coordinates
         if pos[0] > self.x and pos[0] < self.x + self.width:
             if pos[1] > self.y and pos[1] < self.y + self.height:
                 return True

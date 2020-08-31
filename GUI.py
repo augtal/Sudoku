@@ -9,25 +9,29 @@ from CubeClass import Cube
 
 pygame.font.init()
 
-window_WIDTH, window_HEIGHT = 900, 900
+WINDOW_WIDTH, WINDOW_HEIGHT = 900, 900
 GAME_NAME = "Sudoku"
-screen = pygame.display.set_mode((window_WIDTH, window_HEIGHT))
+
+SCREEN = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption(GAME_NAME)
-screen.fill((255, 255, 255))
+SCREEN.fill((255, 255, 255))
 
+GRIDS = ["GRID 4X4", "GRID 6X6", "GRID 9X9"]
 FPS = 10
-GREEN, YELLOW, ORANGE = (146, 208, 80), (255, 217, 102), (244, 176, 132)
+GREEN, YELLOW, ORANGE, BLACK = (146, 208, 80), (255, 217, 102), (244, 176, 132), (0,0,0)
 
-
+#checks what input was gived
 def gameControls(event, board, solved_board):
     key = None
 
+    #checks mouse input and determins if the user click on a cube
     if event.type == pygame.MOUSEBUTTONDOWN:
         mouse_pos = pygame.mouse.get_pos()
         clicked = board.click(mouse_pos)
         if clicked is not None:
             board.selectedCell(clicked[0], clicked[1])
 
+    #checks what key a user pressed
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_1 or event.key == pygame.K_KP1:
             key = 1
@@ -48,26 +52,30 @@ def gameControls(event, board, solved_board):
         if event.key == pygame.K_9 or event.key == pygame.K_KP9:
             key = 9
 
+        #only if a user pressed a number key scrible in a temporary value at that place
         if key != None:
             board.placeTempValue(key)
 
+        #tries to place temporary value into the board to make a permenant value
         if event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
             board.placeValue(solved_board)
 
         key = None
 
-
+#game window
 def game(clock, size, difficulty):
     run = True
 
     sudoku_board, solved_board = sudoku_solver.generateBoard(size, difficulty)
-    board = Board(sudoku_board, window_WIDTH, window_HEIGHT)
+    board = Board(sudoku_board, WINDOW_WIDTH, WINDOW_HEIGHT)
 
     while run:
         clock.tick(FPS)
-        screen.fill((255, 255, 255))
+        SCREEN.fill((255, 255, 255))
 
+        
         for event in pygame.event.get():
+            #if the user pressed X or esc they return back to main menu
             if event.type == pygame.QUIT:
                 run = False
             elif event.type == pygame.KEYDOWN:
@@ -76,21 +84,22 @@ def game(clock, size, difficulty):
 
             gameControls(event, board, solved_board)
 
-        board.draw(screen)
+        board.draw(SCREEN)
         pygame.display.update()
 
-
+# draws the main menu and returns buttons list
 def drawMenu():
-    screen.fill((250, 250, 250))
+    SCREEN.fill((250, 250, 250))
 
-    gap_x = window_WIDTH / 20
-    gap_y = window_HEIGHT / 20
+    gap_x = WINDOW_WIDTH / 20
+    gap_y = WINDOW_HEIGHT / 20
 
     # menu
     menu_font = pygame.font.SysFont('ariel', int(gap_y*2))
     menu_text = menu_font.render(GAME_NAME.capitalize(), 1, (0, 0, 0))
-    screen.blit(menu_text, (window_WIDTH/2 - menu_text.get_width()/2, gap_y+gap_y/2))
-
+    SCREEN.blit(menu_text, (WINDOW_WIDTH/2 - menu_text.get_width()/2, gap_y+gap_y/2))#dictionary for buttons
+    
+    # game options
     colors = {
         0: [GREEN, "EASY"],
         1: [YELLOW, "NORMAL"],
@@ -100,28 +109,23 @@ def drawMenu():
     grid_font = pygame.font.SysFont('ariel', int(gap_y))
 
     buttons = []
-    button_row = []
-    # blank is needed for the next for loop because it starts at 1
-    grids = ["BLANK", "GRID 4X4", "GRID 6X6", "GRID 9X9"]
-    # draws a rectangle
-    for i in range(4):
-        if i == 0:
-            continue
+    # draws 3 rectangles because we have 3 grids
+    for i in range(1,len(GRIDS)+1):
         rect_cords = pygame.rect.Rect(
-            ((window_WIDTH/2) - (gap_x * 8)),
+            ((WINDOW_WIDTH/2) - (gap_x * 8)),
             (gap_y*(5*i)),  # this is the reason it starts at one
-            (window_WIDTH-(gap_x*4)),
+            (WINDOW_WIDTH-(gap_x*4)),
             (gap_y*4)
         )
-        grid_rect = pygame.draw.rect(screen, (0, 0, 0), rect_cords, 4)
+        grid_rect = pygame.draw.rect(SCREEN, BLACK, rect_cords, 4)
 
-        grid_text = grid_font.render(grids[i], 1, (0, 0, 0))
-        screen.blit(grid_text, (window_WIDTH/2 - grid_text.get_width()/2, rect_cords.y+gap_y/4))
+        grid_text = grid_font.render(GRIDS[i-1], 1, BLACK)
+        SCREEN.blit(grid_text, (WINDOW_WIDTH/2 - grid_text.get_width()/2, rect_cords.y+gap_y/4))
 
-        size = int(grids[i][-1])
+        size = int(GRIDS[i-1][-1])
 
-        button_row = []
-        # draws a buttons
+        
+        # draws 3 buttons
         for j in range(3):
             button_cords = [
                 (rect_cords.x + (gap_x + (gap_x*(5*j)))),
@@ -132,10 +136,9 @@ def drawMenu():
             button = Button(colors[j][0], button_cords[0], button_cords[1], button_cords[2], 
                             button_cords[3], size, text=colors[j][1])
 
-            button.draw(screen)
+            button.draw(SCREEN)
 
-            button_row.append(button)
-        buttons.append(button_row)
+            buttons.append(button)
 
     return buttons
 
@@ -159,9 +162,8 @@ def main():
                 mouse_pos = pygame.mouse.get_pos()
                 
                 for i in range(len(buttons)):
-                    for j in range(len(buttons[i])):
-                        if buttons[i][j].click(mouse_pos):
-                            game(clock, buttons[i][j].board_size, buttons[i][j].text.lower())
+                    if buttons[i].click(mouse_pos):
+                        game(clock, buttons[i].board_size, buttons[i].text.lower())
 
         pygame.display.update()
 

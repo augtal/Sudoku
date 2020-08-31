@@ -1,3 +1,4 @@
+#methods here are redundant only used to print board to terminal
 def __printer(board,sizeRow,sizeCol):
     lineBreaker = 0
     for row in enumerate(board):
