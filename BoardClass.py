@@ -85,17 +85,15 @@ class Board():
             self.cubes[y][x_cord].helper = condition
 
         # paints grid
-        x_box = x_cord // self.size_rows
-        y_box = y_cord // self.size_cols
-        for i in range(y_box*self.size_cols, y_box*self.size_cols+self.size_cols):
-            for j in range(x_box*self.size_rows, x_box*self.size_rows+self.size_rows):
+        y_box = y_cord // self.size_rows
+        x_box = x_cord // self.size_cols
+        for i in range(y_box*self.size_rows, y_box*self.size_rows+self.size_rows):
+            for j in range(x_box*self.size_cols, x_box*self.size_cols+self.size_cols):
                 self.cubes[i][j].helper = condition
 
     #finds selected cube
     def selectedCell(self, y_cord, x_cord):
         selected_cube = self.cubes[y_cord][x_cord]
-        old_y, old_x = self.selected_cell
-        selected_old_cube = self.cubes[old_y][old_x]
 
         # first selected cell
         if self.selected_cell is None:
@@ -104,6 +102,9 @@ class Board():
             self.setHelperCells(y_cord, x_cord, True)
         # other selected cell after the first one
         else:
+            old_y, old_x = self.selected_cell
+            selected_old_cube = self.cubes[old_y][old_x]
+
             selected_old_cube.selected = False
             selected_old_cube.correct = None
             self.setHelperCells(old_y, old_x, False)

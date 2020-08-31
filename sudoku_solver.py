@@ -107,7 +107,6 @@ def solve(board):
     board = __fixBoard(board)
     size_row, size_col = findBoardSize(len(board))
     if __solveBoard(board, size_row, size_col) is False:
-        print("Unsolvable board")
         raise NotImplementedError  # throwing an error to stop the program in main file
     return board
 
@@ -193,4 +192,4 @@ def generateBoard(size, dificulty="normal"):
 
 
 if __name__ == "__main__":
-    generateBoard(6, dificulty="hard")
+    generateBoard(9, dificulty="normal")
